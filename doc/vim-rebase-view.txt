@@ -1,0 +1,77 @@
+*vim-rebase-view.txt* Inspect your git log and commits when interactive rebasing
+
+                    __                               _               ~
+         ________  / /_  ____ _________       _   __(_)__ _      __  ~
+        / ___/ _ \/ __ \/ __ `/ ___/ _ \_____| | / / / _ \ | /| / /  ~
+       / /  /  __/ /_/ / /_/ (__  )  __/_____/ |/ / /  __/ |/ |/ /   ~
+      /_/   \___/_.___/\__,_/____/\___/      |___/_/\___/|__/|__/    ~
+
+Version: 1.0.0
+Author: Piers Powlesland
+License: MIT license
+
+=============================================================================
+CONTENTS                                                  *RebaseViewContents*
+
+    Overview ................................ |RebaseViewOverview|
+    Example Setup ........................... |RebaseViewExampleSetup|
+    Functions ............................... |PotionMappings|
+    Credits ................................. |PotionCredits|
+
+=============================================================================
+OVERVIEW                                                  *RebaseViewOverview*
+
+Whilst managing interactive rebases in git one is provided a very limited view
+of the commits, sometimes it can be useful to view the commit content or the
+log of the commits being rebased. This plugin provides functionality to open
+commit contents or the git log in a new window.
+
+=============================================================================
+EXAMPLE SETUP                                         *RebaseViewExampleSetup*
+>
+  augroup rebase_keymaps
+  	autocmd!
+  	autocmd filetype gitrebase call s:ConfigureRebaseKeymaps()
+  augroup END
+  
+  function! s:ConfigureRebaseKeymaps()
+  
+  	" git show --stat xxxx - where xxxx is the commit on the current line
+  	nnoremap <silent> <buffer> <leader>e :call rebaseview#DisplayCommit('--stat')<CR>
+  
+  	" git show xxxx - where xxxx is the commit on the current line
+  	nnoremap <silent> <buffer> <leader>d :call rebaseview#DisplayCommit('')<CR>
+  
+  	" show a log of the range of commits in this rebase, commits are displayed
+  	" in reverse order so that they appear in the same order as those in the
+  	" rebase.
+  	nnoremap <silent> <buffer> <leader>l :call rebaseview#DisplayLog('--stat')<CR>
+  endfunction
+<
+=============================================================================
+FUNCTIONS                                                *RebaseViewFunctions*
+
+rebaseview#DisplayLog({options_string})~
+
+	Displays the git log for the range of commits specified in the comment of
+	the form.
+>
+	# Rebase 984779f..3b7c72f onto 984779f (4 commands)
+<
+	The log is displayed in a new vertical split window. The options parameter
+	is any string of options that is valid for git log.
+
+rebaseview#DisplayCommit({options_string})~
+
+	Executes git show for the commit on the current line. The commit is
+	displayed in a new vertical split window. The options parameter is any
+	string of options that is valid for git show.
+
+=============================================================================
+CREDITS                                                        *RebaseCredits*
+
+I would not have been able to produce this plugin without the most excellent
+https://learnvimscriptthehardway.stevelosh.com by Steve Losh.
+
+==============================================================================
+ vim:textwidth=78:nosmarttab:noexpandtab:tabstop=8:sts=0:ft=help:
