@@ -20,18 +20,18 @@ function rebaseview#OutputInGitWindow(cmdline)
 	1 " go to first line
 endfunction
 
-" Returns first match in current line of 7 or 8 hex chars with a space at
+" Returns first match in current line of 7 or more hex chars with a space at
 " either end.
 function rebaseview#CommitShaFromLine()
-	return trim(matchstr(getline("."),'\v \x{7,8} '))
+	return trim(matchstr(getline("."),'\v \x{7,} '))
 endfunction
 
 " Returns the range of commits that are being rebased.
 function rebaseview#RebaseCommitRange()
 	" Searching for a line like
 	"# Rebase 056af67..ef7b34d onto 056af67 (4 commands)
-	let line=search('\v# Rebase \x{7,8}\.\.\x{7,8} onto \x{7,8} \(\d+ commands\)')
-	return matchstr(getline(line), '\v\x{7,8}\.\.\x{7,8}')
+	let line=search('\v# Rebase \x{7,}\.\.\x{7,} onto \x{7,} \(\d+ commands\)')
+	return matchstr(getline(line), '\v\x{7,}\.\.\x{7,}')
 endfunction
 
 " Displays the output of 'git show' for the commit in the current line in a new window. The
