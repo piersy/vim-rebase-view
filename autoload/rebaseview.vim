@@ -22,8 +22,8 @@ endfunction
 
 " Returns first match in current line of 7 or more hex chars with a space at
 " either end.
-function rebaseview#CommitShaFromLine()
-	return trim(matchstr(getline("."),'\v \x{7,} '))
+function rebaseview#CommitShaFromLine(line)
+	return trim(matchstr(a:line,'\v \x{7,} '))
 endfunction
 
 " Returns the range of commits that are being rebased.
@@ -38,9 +38,34 @@ endfunction
 " options are passed to git show. If the current line does not contain a
 " single commit sha then no action is taken.
 function rebaseview#DisplayCommit(options)
-	let commitsha = rebaseview#CommitShaFromLine()
+	let commitsha = rebaseview#CommitShaFromLine(getline("."))
 	if commitsha != ""
 		call rebaseview#OutputInGitWindow('git show ' . a:options .' '. commitsha)
+	endif
+endfunction
+
+" Gets the start and end commits from a visual range.
+function rebaseview#getStartAndEndCommits() 
+	let lnumA = line("'<")
+	let lnumB = line("'>")
+	if lnumA == lnumB
+		return ["", ""]
+	endif
+	if lnumA > lnumB
+		let [lnumA, lnumB] = [lnumB, lnumA]
+	endif
+	let commitA = rebaseview#CommitShaFromLine(getline(lnumA))
+	let commitB = rebaseview#CommitShaFromLine(getline(lnumB))
+	return[commitA, commitB]
+endfunction
+
+" Displays the diff of visually selected commits. The given options are passed
+" to git diff. If the start and end lines of the visual selection are the same
+" or either does not contains a valid commmit then no action is taken.
+function rebaseview#DisplayDiff(options)
+	let [commitA, commitB] = rebaseview#getStartAndEndCommits()
+	if commitA != "" && commitB != ""
+		call rebaseview#OutputInGitWindow('git diff ' . a:options .' '. commitA .'~ '. commitB)
 	endif
 endfunction
 
@@ -51,6 +76,16 @@ function rebaseview#DisplayLog(options)
 	let range = rebaseview#RebaseCommitRange()
 	if range != ""
 		call rebaseview#OutputInGitWindow('git log --reverse ' . a:options . ' ' . range)
+	endif
+endfunction
+
+" Displays the output of 'git log --reverse' for the range of commits that are
+" visually selected. The options are passed to git log. If no rebase range is
+" found then no action is taken.
+function rebaseview#DisplayLogRange(options)
+	let [commitA, commitB] = rebaseview#getStartAndEndCommits()
+	if commitA != "" && commitB != ""
+		call rebaseview#OutputInGitWindow('git log --reverse ' . a:options . ' ' . commitA .'~..'. commitB)
 	endif
 endfunction
 
